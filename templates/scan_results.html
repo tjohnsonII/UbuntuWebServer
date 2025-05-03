@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Scan Results</title>
+    <!--<meta http-equiv="refresh" content="15"> -- Auto-refresh every 15s -->
+    <meta http-equiv="refresh" content="15">
+    <style>
+        body { font-family: Arial; }
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Network Scan Results (Auto-refresh every 15s)</h2>
+    <table>
+        <tr>
+            <th>IP Address</th>
+            <th>Hostname</th>
+            <th>MAC Address</th>
+        </tr>
+        {% for host in results %}
+        <tr>
+            <td>{{ host.ip }}</td>
+            <td>{{ host.hostname }}</td>
+            <td>{{ host.mac }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <form method="get" action="/">
+        <div style="text-align: center;">
+            <button type="submit">Refresh Now</button>
+        </div>
+    </form>
+    
+</body>
+</html>
