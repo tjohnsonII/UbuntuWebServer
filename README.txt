@@ -30,15 +30,11 @@ Edit
 
  🧪 Step-by-Step Starter Plan
 1. Install nmap
-bash
-Copy
-Edit
+
 sudo apt update
 sudo apt install nmap
 2. Write a scan script (e.g., Python)
-python
-Copy
-Edit
+
 import nmap
 
 nm = nmap.PortScanner()
@@ -53,9 +49,7 @@ Option B: Use PHP script to execute the scan and output HTML
 
 Sample PHP snippet (basic, not secure for production):
 
-php
-Copy
-Edit
+
 <?php
 $output = shell_exec("nmap -sn 192.168.1.0/24");
 echo "<pre>$output</pre>";
@@ -65,9 +59,7 @@ Save as /var/www/html/devices.php and access it at http://your-server-ip/devices
 4. Automate with cron
 Run the scan every 5-10 minutes and cache results to a file or DB.
 
-bash
-Copy
-Edit
+
 */5 * * * * /usr/bin/python3 /home/user/scan_script.py > /var/www/html/devices.html
 ✅ Optional Enhancements
 Store data in SQLite or MySQL to track device history
