@@ -1,71 +1,157 @@
-✅ Project Goal
-Create a web-based dashboard on your Ubuntu server running Apache2 that:
+# UbuntuWebServer - Flask Network Scanner
 
-Scans the network for connected devices (IP/MAC/vendor info)
+A modern, lightweight network device scanner built with Flask and Python. This dashboard detects all devices on your local network, identifies them by MAC/IP/hostname/vendor, optionally detects OS, and offers admin-editable notes for known devices.
 
-Logs and displays device info (hostname, OS if possible)
+---
 
-Optionally, alerts on new/unknown devices
+## ✅ Project Goal
+Create a web-based dashboard on your Ubuntu server (or Proxmox VM) that:
 
-🛠 Tools & Technologies
-Task	Recommended Tool
-Web Server	Apache2 (already installed)
-Backend	Python (Flask or Django) or PHP
-Network Scanning	nmap or arp-scan
-Frontend	HTML/CSS/JS (Bootstrap for styling)
-Storage	SQLite or MySQL (optional for history tracking)
-Cron	To schedule regular scans
+- Scans the network for connected devices (IP, MAC, hostname, vendor, OS)
+- Logs and displays results in a web UI
+- Allows tagging/notes for known hosts
+- Optionally alerts on new/unknown devices
+- Runs continuously with auto-refresh and deep scan automation
 
-🧱 Basic Architecture
-csharp
-Copy
-Edit
-[Ubuntu Server w/ Apache2]
-       |
-    [Backend App - Python or PHP]
-       |
- [Scan Network using nmap/arp]
-       |
- [Parse & Display Results in Web UI]
+---
 
- 🧪 Step-by-Step Starter Plan
-1. Install nmap
+## 🛠 Tools & Technologies
+| Task                | Tool                        |
+|---------------------|-----------------------------|
+| Web Server          | Apache2 *(optional)* / Flask|
+| Backend             | Python (Flask)              |
+| Network Scanning    | `nmap`, `mac-vendor-lookup` |
+| Frontend            | HTML/CSS/JS (Bootstrap)     |
+| Storage             | SQLite                      |
+| Scheduling          | cron                        |
+| Startup Automation  | systemd                     |
 
+---
+
+## 🧱 Architecture
+```
+[Ubuntu Server / Proxmox VM]
+         |
+   [Flask App - app.py]
+         |
+ [Nmap Scans + Deep Scan (cron)]
+         |
+ [SQLite Database + MAC Vendor DB]
+         |
+  [Bootstrap Web UI w/ Auto Refresh]
+```
+
+---
+
+## 🧪 Installation Instructions
+
+### 1. Clone and Setup
+```bash
+git clone https://github.com/yourusername/UbuntuWebServer.git
+cd UbuntuWebServer
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Install Dependencies
+```bash
 sudo apt update
-sudo apt install nmap
-2. Write a scan script (e.g., Python)
+sudo apt install nmap sqlite3 -y
+```
 
-import nmap
+### 3. Initialize the Database
+```bash
+bash init_db.sh
+```
 
-nm = nmap.PortScanner()
-nm.scan(hosts='192.168.1.0/24', arguments='-sn')  # Ping scan
+### 4. Start the Flask App
+```bash
+bash run_flask.sh
+```
+Visit: `http://<server-ip>:5000`
 
-for host in nm.all_hosts():
-    print(f"Host: {host} ({nm[host].hostname()}) | MAC: {nm[host]['addresses'].get('mac', 'N/A')}")
-3. Display on a Web Page
-Option A: Write a Python Flask app that returns HTML
+---
 
-Option B: Use PHP script to execute the scan and output HTML
+## 🔁 Sync & Restart from GitHub
+```bash
+bash sync_from_github.sh
+```
+This will:
+- Pull the latest code
+- Ensure `sqlite3` is installed
+- Initialize the DB if needed
+- Restart the Flask app
 
-Sample PHP snippet (basic, not secure for production):
+---
 
+## 🔂 Automate Deep OS Scan
+```bash
+bash install_cron.sh
+```
+This sets up a `cron` job to run every 30 minutes:
+```cron
+*/30 * * * * /usr/bin/python3 /home/tim2/UbuntuWebServer/deep_scan.py
+```
 
-<?php
-$output = shell_exec("nmap -sn 192.168.1.0/24");
-echo "<pre>$output</pre>";
-?>
-Save as /var/www/html/devices.php and access it at http://your-server-ip/devices.php.
+---
 
-4. Automate with cron
-Run the scan every 5-10 minutes and cache results to a file or DB.
+## 🚀 Enable on Boot (systemd)
+```bash
+sudo cp flaskscanner.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable flaskscanner
+sudo systemctl start flaskscanner
+```
 
+---
 
-*/5 * * * * /usr/bin/python3 /home/user/scan_script.py > /var/www/html/devices.html
-✅ Optional Enhancements
-Store data in SQLite or MySQL to track device history
+## 🧾 Add/Edit Known Hosts
+```bash
+python insert_known_host.py
+```
+This will prompt for:
+- MAC
+- IP
+- Hostname
+- Vendor
+- OS
+- Notes
 
-Flag new devices
+---
 
-Use ARP or SNMP for more device details
+## 📁 Project Layout
+| File                  | Purpose                              |
+|-----------------------|--------------------------------------|
+| `app.py`              | Flask app, runs network scan         |
+| `deep_scan.py`        | OS detection, cron-based             |
+| `insert_known_host.py`| CLI insert for known host DB         |
+| `templates/`          | HTML UI (scan_results.html)          |
+| `known_hosts.db`      | SQLite DB for persistent host info   |
+| `sync_to_github.sh`   | Push code from Ubuntu → GitHub       |
+| `sync_from_github.sh` | Pull updates from GitHub and restart |
+| `init_db.sh`          | Creates the `known_hosts` table      |
+| `flask.log`, `app_errors.log` | Logs                         |
 
-Add login/authentication to restrict access
+---
+
+## 🌐 Web UI Features
+- Auto-refresh every 15s
+- Manual refresh button
+- Search/filter box (IP, MAC, Vendor, Hostname)
+- Color badges by vendor
+- OS info from deep scans
+- Notes from DB
+- Responsive Bootstrap layout
+
+---
+
+## 📄 License
+MIT
+
+---
+
+## 🙋‍♂️ Author
+Tim Johnson II  
+[GitHub](https://github.com/tjohnsonII)  
+[123NET Hosted PBX Engineer | IT Specialist]
