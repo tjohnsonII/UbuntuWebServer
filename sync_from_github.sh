@@ -1,24 +1,22 @@
 #!/bin/bash
 
-cd ~/UbuntuWebServer || { echo "❌ Failed to cd into UbuntuWebServer"; exit 1; }
-
-echo "[*] Ensuring sqlite3 is installed..."
-if ! command -v sqlite3 &> /dev/null; then
-    echo "[*] Installing sqlite3..."
-    sudo apt-get update
-    sudo apt-get install -y sqlite3
-else
-    echo "[✓] sqlite3 is already installed."
-fi
+cd ~/UbuntuWebServer || exit 1
 
 echo "[*] Pulling latest changes from GitHub..."
+git stash --include-untracked
 git pull origin main
+git stash pop
 
-echo "[*] Activating virtual environment..."
+echo "[*] Ensuring sqlite3 is installed..."
+sudo apt-get update -y
+sudo apt-get install -y sqlite3
+
+echo "[*] Running DB initialization..."
 source venv/bin/activate
+python init_db.py
 
 echo "[*] Restarting Flask app..."
 pkill -f "python app.py"
 nohup python app.py > flask.log 2>&1 &
 
-echo "[✓] Sync and restart complete."
+echo "[✓] Sync, DB check, and restart complete."
