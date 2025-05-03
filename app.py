@@ -1,28 +1,42 @@
 from flask import Flask, render_template
-from manuf import manuf
+from mac_vendor_lookup import MacLookup, VendorNotFoundError
 import nmap
 
 app = Flask(__name__)
-p = manuf.MacParser()
-
+vendor_lookup = MacLookup()
+vendor_lookup.update_vendors()  # Download fresh vendor DB
 
 def scan_network():
     nm = nmap.PortScanner()
-    nm.scan(hosts="192.168.1.0/24", arguments="-sn")
+    nm.scan(hosts="192.168.1.0/24", arguments="-O")  # Enables OS detection
     hosts = []
 
     for host in nm.all_hosts():
         mac = nm[host]['addresses'].get('mac', 'N/A')
-        vendor = p.get_manuf(mac) if mac != "N/A" else "N/A"
+        hostname = nm[host].hostname()
+        
+        # Attempt vendor lookup
+        try:
+            vendor = vendor_lookup.lookup(mac) if mac != "N/A" else "N/A"
+        except VendorNotFoundError:
+            vendor = "Unknown"
+
+        # Try to get OS info
+        try:
+            osmatch = nm[host]['osmatch']
+            os = osmatch[0]['name'] if osmatch else "Unknown"
+        except KeyError:
+            os = "Unknown"
+
         hosts.append({
             'ip': host,
-            'hostname': nm[host].hostname(),
+            'hostname': hostname,
             'mac': mac,
-            'vendor': vendor
+            'vendor': vendor,
+            'os': os
         })
 
     return hosts
-
 
 @app.route("/")
 def home():
