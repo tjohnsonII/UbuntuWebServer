@@ -1,45 +1,25 @@
-import os
-import logging
 from flask import Flask, render_template
-from mac_vendor_lookup import MacLookup, VendorNotFoundError
 import nmap
-
-# Setup logging
-logging.basicConfig(filename='app_errors.log', level=logging.WARNING, 
-                    format='%(asctime)s [%(levelname)s] %(message)s')
+from manuf import manuf
 
 app = Flask(__name__)
 
-# Use local writable cache path
-os.environ["MAC_VENDOR_LOOKUP_CACHE"] = "./.cache/mac-vendors.txt"
-os.makedirs("./.cache", exist_ok=True)
-
-vendor_lookup = MacLookup()
-try:
-    vendor_lookup.update_vendors()
-except Exception as e:
-    logging.warning(f"Failed to update MAC vendor database: {e}")
+# Initialize the MAC vendor parser once
+mac_parser = manuf.MacParser()
 
 def scan_network():
     nm = nmap.PortScanner()
-    nm.scan(hosts="192.168.1.0/24", arguments="-sn")  # Enable OS detection
+    nm.scan(hosts="192.168.1.0/24", arguments="-sn")  # Fast ping scan
     hosts = []
 
     for host in nm.all_hosts():
         mac = nm[host]['addresses'].get('mac', 'N/A')
-        try:
-            vendor = vendor_lookup.lookup(mac) if mac != "N/A" else "N/A"
-        except VendorNotFoundError:
-            vendor = "Unknown"
-
-        os_info = nm[host].get('osmatch', [{}])[0].get('name', 'N/A')
-
+        vendor = mac_parser.get_manuf(mac) if mac != "N/A" else "N/A"
         hosts.append({
             'ip': host,
             'hostname': nm[host].hostname(),
             'mac': mac,
-            'vendor': vendor,
-            'os': os_info
+            'vendor': vendor
         })
 
     return hosts
