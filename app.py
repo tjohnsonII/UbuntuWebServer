@@ -1,7 +1,10 @@
 from flask import Flask, render_template
+from manuf import manuf
 import nmap
 
 app = Flask(__name__)
+p = manuf.MacParser()
+
 
 def scan_network():
     nm = nmap.PortScanner()
@@ -9,13 +12,17 @@ def scan_network():
     hosts = []
 
     for host in nm.all_hosts():
+        mac = nm[host]['addresses'].get('mac', 'N/A')
+        vendor = p.get_manuf(mac) if mac != "N/A" else "N/A"
         hosts.append({
             'ip': host,
             'hostname': nm[host].hostname(),
-            'mac': nm[host]['addresses'].get('mac', 'N/A')
+            'mac': mac,
+            'vendor': vendor
         })
 
     return hosts
+
 
 @app.route("/")
 def home():

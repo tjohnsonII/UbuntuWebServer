@@ -13,17 +13,34 @@
 </head>
 <body>
     <h2 style="text-align:center;">Network Scan Results (Auto-refresh every 15s)</h2>
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by IP, MAC, Hostname, or Vendor" style="width: 50%; padding: 5px;">
+
+    <script>
+    function filterTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let rows = document.querySelectorAll("table tr:not(:first-child)");
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+    </script>
+
     <table>
         <tr>
             <th>IP Address</th>
             <th>Hostname</th>
             <th>MAC Address</th>
+            <th>Vendor</th>
+            <th>OS</th>
         </tr>
         {% for host in results %}
         <tr>
             <td>{{ host.ip }}</td>
             <td>{{ host.hostname }}</td>
             <td>{{ host.mac }}</td>
+            <td>{{ host.vendor }}</td>
+            <td>{{ host.os }}</td>
         </tr>
         {% endfor %}
     </table>
