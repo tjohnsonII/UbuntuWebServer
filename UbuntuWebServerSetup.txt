@@ -1,0 +1,130 @@
+**Apache2 Basic Web Server Setup Guide (Ubuntu)**
+
+This guide walks you through installing and configuring Apache2 on Ubuntu to serve basic websites.
+
+---
+
+## 1. Install Apache2
+
+```bash
+sudo apt update
+sudo apt install apache2
+```
+
+---
+
+## 2. Start and Enable Apache
+
+```bash
+sudo systemctl start apache2
+sudo systemctl enable apache2
+```
+
+Check status:
+
+```bash
+sudo systemctl status apache2
+```
+
+---
+
+## 3. Test Web Server
+
+Open a browser and visit:
+
+```
+http://<your_server_ip>
+```
+
+You should see the default Apache welcome page.
+
+---
+
+## 4. Allow Apache Through UFW Firewall
+
+```bash
+sudo ufw allow 'Apache Full'
+```
+
+Check rules:
+
+```bash
+sudo ufw status
+```
+
+---
+
+## 5. Website Directory
+
+* Default site root: `/var/www/html`
+* Place your `index.html` or website files here:
+
+```bash
+sudo nano /var/www/html/index.html
+```
+
+---
+
+## 6. Manage Apache Logs
+
+```bash
+tail -f /var/log/apache2/access.log
+tail -f /var/log/apache2/error.log
+```
+
+---
+
+## 7. Enable Useful Apache Modules
+
+```bash
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+```
+
+---
+
+## 8. Set Up Virtual Hosts (Optional)
+
+To host multiple sites on one server:
+
+Create a new config:
+
+```bash
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/mysite.conf
+sudo nano /etc/apache2/sites-available/mysite.conf
+```
+
+Example config:
+
+```apache
+<VirtualHost *:80>
+    ServerAdmin admin@example.com
+    ServerName example.com
+    ServerAlias www.example.com
+    DocumentRoot /var/www/example
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+Then:
+
+```bash
+sudo mkdir /var/www/example
+sudo a2ensite mysite.conf
+sudo systemctl reload apache2
+```
+
+---
+
+## 9. Verify Configuration
+
+```bash
+sudo apache2ctl configtest
+```
+
+Look for `Syntax OK`.
+
+---
+
+Apache2 is now ready to serve your static or dynamic websites!
