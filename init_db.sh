@@ -1,9 +1,12 @@
 import sqlite3
+import os
 
-conn = sqlite3.connect('known_hosts.db')
+db_path = os.path.expanduser("~/UbuntuWebServer/known_hosts.db")
+
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 
-c.execute('''
+c.execute("""
 CREATE TABLE IF NOT EXISTS known_hosts (
     mac TEXT PRIMARY KEY,
     ip TEXT,
@@ -12,8 +15,9 @@ CREATE TABLE IF NOT EXISTS known_hosts (
     os TEXT,
     notes TEXT
 )
-''')
+""")
 
 conn.commit()
 conn.close()
-print("[✓] known_hosts table created or verified.")
+
+print("[✓] known_hosts.db initialized successfully.")
