@@ -22,7 +22,7 @@ except Exception as e:
 
 def scan_network():
     nm = nmap.PortScanner()
-    nm.scan(hosts="192.168.1.0/24", arguments="-O")  # Enable OS detection
+    nm.scan(hosts="192.168.1.0/24", arguments="-sn")  # Enable OS detection
     hosts = []
 
     for host in nm.all_hosts():
