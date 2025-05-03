@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#update UbuntuWebServer
+
 cd ~/UbuntuWebServer || exit 1
 
 echo "[*] Pulling latest changes from GitHub..."
