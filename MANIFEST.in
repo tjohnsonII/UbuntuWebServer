@@ -4,3 +4,4 @@ include requirements.txt
 recursive-include templates *
 recursive-include static *
 recursive-include tests *
+recursive-include diagnostic *
