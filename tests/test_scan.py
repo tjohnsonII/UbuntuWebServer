@@ -25,7 +25,7 @@ from app import scan_network
 
 class TestScanner(unittest.TestCase):
     def test_scan_not_empty(self):
-        results = scan_network()
+        results = scan_network(test_mode=True)
         self.assertIsInstance(results, list)
         self.assertGreater(len(results), 0)
 
